@@ -1,0 +1,43 @@
+name: Deploy .NET App to Self-Hosted Windows Runner
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted  # твій власний Windows runner
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Stop previous Kestrel instance
+        shell: pwsh
+        run: |
+          $process = Get-Process | Where-Object { $_.Path -like "*MyWebApp.dll*" } 
+          if ($process) {
+            Write-Host "Stopping existing process..."
+            Stop-Process -Id $process.Id -Force
+          } else {
+            Write-Host "No previous instance found."
+          }
+
+      - name: Run Kestrel server in background
+        shell: pwsh
+        run: |
+          Write-Host "Starting Kestrel..."
+          Start-Process "dotnet" "run --configuration Release --urls http://0.0.0.0:5000" -NoNewWindow
+          Start-Sleep -Seconds 5
+          Write-Host "✅ Server started on http://<your-machine-ip>:5000"
