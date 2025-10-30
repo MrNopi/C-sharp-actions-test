@@ -12,13 +12,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - name: Log workdir
-      #   shell: pwsh
-      #   run: |
-      #      Write-Host "Current working directory: ${{ github.workspace }}"
+      - name: change workdir
+        working-directory: ./MyNewTestProject
 
       - name: Build project
-        working-directory: ./MyNewTestProject
         run: dotnet build MyNewTestProject --configuration Release --no-restore
         
 
