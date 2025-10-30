@@ -19,6 +19,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Write env variables
+        shell: powershell
+        run: |
+          Write-Host "DEPLOY_DIR=$env:DEPLOY_DIR"
+          Write-Host "PUBLISH_TEMP=$env:PUBLISH_TEMP"
+
       - name: change workdir
         shell: powershell
         run: |
