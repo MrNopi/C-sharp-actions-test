@@ -64,8 +64,11 @@ jobs:
 
       - name: Deploy (mirror published files)
         run: |
-          robocopy "$env:PUBLISH_TEMP" "$env:DEPLOY_DIR" /MIR | Out-Null
-          if ($LASTEXITCODE -ge 8) { throw "robocopy failed with exit code $LASTEXITCODE" }
+          robocopy "$env:PUBLISH_TEMP" "$env:DEPLOY_DIR" /MIR
+          $code = $LASTEXITCODE
+          if ($code -ge 8) { throw "robocopy failed with exit code $code" }
+          # Normalize acceptable robocopy codes (0-7) so the step doesn't fail
+          $global:LASTEXITCODE = 0
 
       - name: Start application (Kestrel)
         run: |
