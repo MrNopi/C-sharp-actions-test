@@ -14,7 +14,7 @@ jobs:
         working-directory: MyNewTestProject
     env:
       DEPLOY_DIR: C:\apps\MyNewTestProject
-      PUBLISH_TEMP: $DEPLOY_DIR\publish
+      PUBLISH_TEMP: ${{ env.DEPLOY_DIR }}\publish
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
