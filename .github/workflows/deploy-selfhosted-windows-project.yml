@@ -79,3 +79,10 @@ jobs:
           Start-Process -FilePath "dotnet" -ArgumentList $args -WindowStyle Hidden
           Start-Sleep -Seconds 3
           Write-Host "App started (background)."
+
+
+      - name: Health check http://localhost:8080
+        shell: powershell
+        run: |
+          $resp = Invoke-WebRequest -UseBasicParsing http://localhost:8080 -TimeoutSec 10
+          if ($resp.StatusCode -ne 200) { throw "Health check failed: $($resp.StatusCode)" }
