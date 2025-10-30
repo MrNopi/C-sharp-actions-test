@@ -76,7 +76,7 @@ jobs:
           if (-not (Test-Path $dll)) { throw "App DLL not found at $dll" }
           $args = '"' + $dll + '" --urls http://localhost:8080'
           Write-Host "Starting: dotnet $args"
-          Start-Process -FilePath "dotnet" -ArgumentList $args -WindowStyle Hidden
+          Start-Process -FilePath "dotnet" -ArgumentList $args
           Start-Sleep -Seconds 3
           Write-Host "App started (background)."
 
