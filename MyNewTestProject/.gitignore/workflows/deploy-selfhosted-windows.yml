@@ -18,7 +18,7 @@ jobs:
            Write-Host "Current working directory: ${{ github.workspace }}"
 
       - name: Build project
-        run: dotnet build MyNewTestProject --configuration Release --no-restore
+        run: dotnet build  --configuration Release --no-restore
         working-directory: MyNewTestProject
 
       - name: Stop previous Kestrel instance
