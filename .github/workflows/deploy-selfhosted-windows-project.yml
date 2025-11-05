@@ -71,7 +71,7 @@ jobs:
           $global:LASTEXITCODE = 0
 
       - name: Run app with logs (Kestrel)
-        shell: pwsh
+        shell: powershell
         run: |
           $dll = Join-Path $env:DEPLOY_DIR 'MyNewTestProject.dll'
           if (-not (Test-Path $dll)) { throw "App DLL not found at $dll" }
