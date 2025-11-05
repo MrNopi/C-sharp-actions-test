@@ -70,15 +70,16 @@ jobs:
           # Normalize acceptable robocopy codes (0-7) so the step doesn't fail
           $global:LASTEXITCODE = 0
 
-      - name: Start application (Kestrel)
+      - name: Run app with logs (Kestrel)
+        shell: pwsh
         run: |
           $dll = Join-Path $env:DEPLOY_DIR 'MyNewTestProject.dll'
           if (-not (Test-Path $dll)) { throw "App DLL not found at $dll" }
-          $args = '"' + $dll + '" --urls http://localhost:8080'
-          Write-Host "Starting: dotnet $args"
-          Start-Process -FilePath "dotnet" -ArgumentList $args
-          Start-Sleep -Seconds 3
-          Write-Host "App started (background)."
+          Write-Host "Starting app in background..."
+          Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
+          Start-Sleep -Seconds 5
+          Write-Host "✅ App started in background on port 8080."
+
 
 
       - name: Health check http://localhost:8080
