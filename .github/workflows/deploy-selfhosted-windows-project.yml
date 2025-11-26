@@ -66,20 +66,20 @@ jobs:
       - name: Transfer files to server
         shell: powershell
         run: | 
-          $session = New-PSSession -ComputerName $env:RemoteServer
+          $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           Write-Host "Starting resource copying $ScriptPath ..."
           cd "C:/"
           if (-not (Test-Path $env:PUBLISH_TEMP)) { New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null }
           }
-          Copy-Item -Path $env.LocalScriptPath -Destination $RemotePath -ToSession $session
+          Copy-Item -Path $env.PUBLISH_TEMP -Destination $RemotePath -ToSession $session
           Remove-PSSession $session
 
 
       - name: Deploy files to server
         shell: powershell
         run: | 
-          $session = New-PSSession -ComputerName $emv.RemoteServer
+          $session = New-PSSession -ComputerName $env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           Write-Host "Starting deploy $ScriptPath ..."
           if ((Test-Path $env:PUBLISH_TEMP)) { 
@@ -87,7 +87,7 @@ jobs:
            Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
           | Out-Null }
           }
-          Copy-Item -Path $env.LocalScriptPath -Destination $RemotePath -ToSession $session
+          Copy-Item -Path $env:PUBLISH_TEMP -Destination $RemotePath -ToSession $session
           Remove-PSSession $session
 
       # - name: Deploy (mirror published files)
@@ -113,13 +113,13 @@ jobs:
       - name: Healthcheck
         shell: powershell
         run: |
-          $session = New-PSSession -ComputerName $env.RemoteServer
+          $session = New-PSSession -ComputerName $Env.RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           Write-Host "Starting healthcheck..."
           $resp = Invoke-WebRequest -UseBasicParsing http://localhost:8080 -TimeoutSec 10
           $healthStatus = if ($resp.StatusCode -ne 200) { throw "Health check failed: $($resp.StatusCode)" }
           echo $healthStatus
           }
-          Copy-Item -Path $env.LocalScriptPath -Destination $RemotePath -ToSession $session
+          Copy-Item -Path $env.PUBLISH_TEMP -Destination $RemotePath -ToSession $session
           Remove-PSSession $session
          
