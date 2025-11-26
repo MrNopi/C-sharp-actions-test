@@ -45,45 +45,81 @@ jobs:
         run: |
           dotnet publish MyNewTestProject.csproj -c Release -o $env:PUBLISH_TEMP
 
-      - name: Stop running Kestrel/dotnet for this app
-        run: |
-          $matches = Get-CimInstance Win32_Process |
-            Where-Object { $_.CommandLine -match 'MyNewTestProject\.dll' -or $_.CommandLine -match 'MyNewTestProject\\MyNewTestProject' }
-          if ($matches) {
-            $matches | ForEach-Object {
-              Write-Host "Stopping PID $($_.ProcessId): $($_.CommandLine)"
-              Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
-            }
-          } else {
-            Write-Host "No existing Kestrel/dotnet process found for MyNewTestProject."
-          }
+      # - name: Stop running Kestrel/dotnet for this app
+      #   run: |
+      #     $matches = Get-CimInstance Win32_Process |
+      #       Where-Object { $_.CommandLine -match 'MyNewTestProject\.dll' -or $_.CommandLine -match 'MyNewTestProject\\MyNewTestProject' }
+      #     if ($matches) {
+      #       $matches | ForEach-Object {
+      #         Write-Host "Stopping PID $($_.ProcessId): $($_.CommandLine)"
+      #         Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+      #       }
+      #     } else {
+      #       Write-Host "No existing Kestrel/dotnet process found for MyNewTestProject."
+      #     }
 
       - name: Create deploy directory
         run: |
           if (-not (Test-Path $env:DEPLOY_DIR)) { New-Item -ItemType Directory -Force -Path $env:DEPLOY_DIR | Out-Null }
 
-      - name: Deploy (mirror published files)
-        run: |
-          robocopy "$env:PUBLISH_TEMP" "$env:DEPLOY_DIR" /MIR
-          $code = $LASTEXITCODE
-          if ($code -ge 8) { throw "robocopy failed with exit code $code" }
-          # Normalize acceptable robocopy codes (0-7) so the step doesn't fail
-          $global:LASTEXITCODE = 0
 
-      - name: Run app with logs (Kestrel)
+      - name: Transfer files to server
+        shell: powershell
+        run: | 
+          $session = New-PSSession -ComputerName $emv.RemoteServer
+          Invoke-Command -Session $session -ScriptBlock {
+          Write-Host "Starting resource copying $ScriptPath ..."
+          cd "C:/"
+          if (-not (Test-Path $env:PUBLISH_TEMP)) { New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null }
+          }
+          Copy-Item -Path $env.LocalScriptPath -Destination $RemotePath -ToSession $session
+          Remove-PSSession $session
+
+
+      - name: Deploy files to server
+        shell: powershell
+        run: | 
+          $session = New-PSSession -ComputerName $emv.RemoteServer
+          Invoke-Command -Session $session -ScriptBlock {
+          Write-Host "Starting deploy $ScriptPath ..."
+          if ((Test-Path $env:PUBLISH_TEMP)) { 
+          cd $env:PUBLISH_TEMP
+           Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
+          | Out-Null }
+          }
+          Copy-Item -Path $env.LocalScriptPath -Destination $RemotePath -ToSession $session
+          Remove-PSSession $session
+
+      # - name: Deploy (mirror published files)
+      #   run: |
+      #     robocopy "$env:PUBLISH_TEMP" "$env:DEPLOY_DIR" /MIR
+      #     $code = $LASTEXITCODE
+      #     if ($code -ge 8) { throw "robocopy failed with exit code $code" }
+      #     # Normalize acceptable robocopy codes (0-7) so the step doesn't fail
+      #     $global:LASTEXITCODE = 0
+
+      # - name: Run app with logs (Kestrel)
+      #   shell: powershell
+      #   run: |
+      #     $dll = Join-Path $env:DEPLOY_DIR 'MyNewTestProject.dll'
+      #     if (-not (Test-Path $dll)) { throw "App DLL not found at $dll" }
+      #     Write-Host "Starting app in background..."
+      #     Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
+      #     Start-Sleep -Seconds 5
+      #     Write-Host "✅ App started in background on port 8080."
+
+
+
+      - name: Healthcheck
         shell: powershell
         run: |
-          $dll = Join-Path $env:DEPLOY_DIR 'MyNewTestProject.dll'
-          if (-not (Test-Path $dll)) { throw "App DLL not found at $dll" }
-          Write-Host "Starting app in background..."
-          Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
-          Start-Sleep -Seconds 5
-          Write-Host "✅ App started in background on port 8080."
-
-
-
-      - name: Health check http://localhost:8080
-        shell: powershell
-        run: |
+          $session = New-PSSession -ComputerName $env.RemoteServer
+          Invoke-Command -Session $session -ScriptBlock {
+          Write-Host "Starting healthcheck..."
           $resp = Invoke-WebRequest -UseBasicParsing http://localhost:8080 -TimeoutSec 10
-          if ($resp.StatusCode -ne 200) { throw "Health check failed: $($resp.StatusCode)" }
+          $healthStatus = if ($resp.StatusCode -ne 200) { throw "Health check failed: $($resp.StatusCode)" }
+          echo $healthStatus
+          }
+          Copy-Item -Path $env.LocalScriptPath -Destination $RemotePath -ToSession $session
+          Remove-PSSession $session
+         
