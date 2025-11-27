@@ -75,8 +75,8 @@ jobs:
           param($publishTemp)
           Write-Host "Starting resource copying $ScriptPath ..."
           cd "C:/"
-          Write-Host "Publish temp: " $env:PUBLISH_TEMP
-          if (-not (Test-Path $env:PUBLISH_TEMP)) { New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null }
+          Write-Host "Publish temp: " $publishTemp
+          if (-not (Test-Path $publishTemp)) { New-Item -ItemType Directory -Force -Path $publishTemp | Out-Null }
           }
           Copy-Item -Path $env:PUBLISH_TEMP -Destination $RemotePath -ToSession $session
           Remove-PSSession $session
