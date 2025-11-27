@@ -69,6 +69,8 @@ jobs:
            DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
            PUBLISH_TEMP: ${{ env.PUBLISH_TEMP }}
         run: | 
+          gci env:
+          Write-Host "DEBUG PUBLISH_TEMP = '$env:PUBLISH_TEMP'"
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           Write-Host "Starting resource copying $ScriptPath ..."
