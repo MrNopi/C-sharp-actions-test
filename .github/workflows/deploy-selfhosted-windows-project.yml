@@ -70,6 +70,7 @@ jobs:
           Invoke-Command -Session $session -ScriptBlock {
           Write-Host "Starting resource copying $ScriptPath ..."
           cd "C:/"
+          Write-Host "Publish temp: " $env:PUBLISH_TEMP
           if (-not (Test-Path $env:PUBLISH_TEMP)) { New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null }
           }
           Copy-Item -Path $env.PUBLISH_TEMP -Destination $RemotePath -ToSession $session
