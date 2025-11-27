@@ -18,20 +18,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Write env variables
-        shell: powershell
-        run: |
-          Write-Host "DEPLOY_DIR=$env:DEPLOY_DIR"
-          Write-Host "PUBLISH_TEMP=$env:PUBLISH_TEMP"
-
-      - name: change workdir
-        shell: powershell
-        run: |
-          Write-Host "workspace=${{ github.workspace }}"
-          Get-Location
-          Get-ChildItem
-
+        
       - name: Restore
         run: |
           dotnet restore
@@ -58,10 +45,6 @@ jobs:
       #       Write-Host "No existing Kestrel/dotnet process found for MyNewTestProject."
       #     }
 
-      - name: Create deploy directory
-        run: |
-          if (-not (Test-Path $env:DEPLOY_DIR)) { New-Item -ItemType Directory -Force -Path $env:DEPLOY_DIR | Out-Null }
-
 
       - name: Transfer files to server
         shell: powershell
@@ -74,12 +57,11 @@ jobs:
           Invoke-Command -Session $session -ScriptBlock {
           param($publishTemp)
           Write-Host "Starting resource copying $ScriptPath ..."
-          cd "C:/"
-          Write-Host "Publish temp: " $publishTemp
           if (-not (Test-Path $publishTemp)) { New-Item -ItemType Directory -Force -Path $publishTemp | Out-Null }
           } -ArgumentList  ${env:PUBLISH_TEMP}
           Remove-Item $env:PUBLISH_TEMP -Recurse -Force
-          Copy-Item -Path $env:PUBLISH_TEMP -Destination $env:DEPLOY_DIR -ToSession $session -Recurse -Force
+          New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null
+          Copy-Item -Path $env:PUBLISH_TEMP -Destination $env:PUBLISH_TEMP -ToSession $session -Recurse -Force
           Remove-PSSession $session
 
 
