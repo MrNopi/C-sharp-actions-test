@@ -74,9 +74,8 @@ jobs:
         run: | 
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
-            Write-Host $publishTemp
             param($publishTemp)
-            Write-Host "Starting deploy ..."
+            Write-Host "Starting deploy in ${publishTemp}" 
             if ((Test-Path $publishTemp)) { 
             cd $publishTemp
              Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
