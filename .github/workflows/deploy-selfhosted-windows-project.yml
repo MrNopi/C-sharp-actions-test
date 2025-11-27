@@ -78,7 +78,7 @@ jobs:
           Write-Host "Publish temp: " $publishTemp
           if (-not (Test-Path $publishTemp)) { New-Item -ItemType Directory -Force -Path $publishTemp | Out-Null }
           } -ArgumentList  ${env:PUBLISH_TEMP}
-          Copy-Item -Path $env:PUBLISH_TEMP -Destination $env:PUBLISH_TEMP -ToSession $session
+          Copy-Item -Path $env:PUBLISH_TEMP -Destination $env:PUBLISH_TEMP -ToSession $session -Recurse -Force
           Remove-PSSession $session
 
 
