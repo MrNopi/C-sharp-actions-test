@@ -72,6 +72,7 @@ jobs:
           Write-Host "DEBUG PUBLISH_TEMP = '$env:PUBLISH_TEMP'"
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
+          param($publishTemp)
           Write-Host "Starting resource copying $ScriptPath ..."
           cd "C:/"
           Write-Host "Publish temp: " $env:PUBLISH_TEMP
@@ -125,6 +126,6 @@ jobs:
           $healthStatus = if ($resp.StatusCode -ne 200) { throw "Health check failed: $($resp.StatusCode)" }
           echo $healthStatus
           }
-          Copy-Item -Path $env.PUBLISH_TEMP -Destination $RemotePath -ToSession $session
+          Copy-Item -Path $env:PUBLISH_TEMP -Destination $RemotePath -ToSession $session
           Remove-PSSession $session
          
