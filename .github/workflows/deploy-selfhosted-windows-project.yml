@@ -25,8 +25,10 @@ jobs:
 
       - name: Prepare publish temp directory
         run: |
-          if (Test-Path $env:PUBLISH_TEMP) { Remove-Item -Recurse -Force $env:PUBLISH_TEMP }
-          New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null
+          if (Test-Path $env:PUBLISH_TEMP) { Get-ChildItem $PUBLISH_TEMP -Recurse -Force | Remove-Item -Recurse -Force } 
+          else {
+            New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null
+          }
 
       - name: Publish (Release)
         run: |
@@ -57,10 +59,7 @@ jobs:
           Invoke-Command -Session $session -ScriptBlock {
           param($publishTemp)
           Write-Host "Starting resource copying $ScriptPath ..."
-          if (-not (Test-Path $publishTemp)) { New-Item -ItemType Directory -Force -Path $publishTemp | Out-Null }
           } -ArgumentList  ${env:PUBLISH_TEMP}
-          Remove-Item $env:PUBLISH_TEMP -Recurse -Force
-          New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null
           Copy-Item -Path $env:PUBLISH_TEMP -Destination $env:PUBLISH_TEMP -ToSession $session -Recurse -Force
           Remove-PSSession $session
 
