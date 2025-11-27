@@ -77,12 +77,10 @@ jobs:
           Invoke-Command -Session $session -ScriptBlock {
             param($publishTemp, $dll)
             Write-Host "Starting deploy in ${publishTemp}" 
-            if ((Test-Path $publishTemp)) { 
-            Write-Host $dll
+            Write-Host "dll: ${dll}"
             $path = "$publishTemp\$dll"
             Write-Host $path
             Start-Process "dotnet" -ArgumentList "`"path`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
-           }
           } -ArgumentList  (${env:PUBLISH_TEMP}, ${Env:dll})
           Remove-PSSession $session
 
