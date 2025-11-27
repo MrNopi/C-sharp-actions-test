@@ -25,7 +25,9 @@ jobs:
 
       - name: Prepare publish temp directory
         run: |
-          if (Test-Path $env:PUBLISH_TEMP) { Get-ChildItem $PUBLISH_TEMP -Recurse -Force | Remove-Item -Recurse -Force } 
+          if (Test-Path $env:PUBLISH_TEMP) {
+          Set-Location $env:PUBLISH_TEMP
+          Get-ChildItem $PUBLISH_TEMP -Recurse -Force | Remove-Item -Recurse -Force } 
           else {
             New-Item -ItemType Directory -Force -Path $env:PUBLISH_TEMP | Out-Null
           }
