@@ -68,12 +68,15 @@ jobs:
 
       - name: Deploy files to server
         shell: powershell
+        env:
+           DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
+           PUBLISH_TEMP: ${{ env.PUBLISH_TEMP }}
         run: | 
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
             Write-Host $publishTemp
             param($publishTemp)
-            Write-Host "Starting deploy $ScriptPath ..."
+            Write-Host "Starting deploy ..."
             if ((Test-Path $publishTemp)) { 
             cd $publishTemp
              Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
