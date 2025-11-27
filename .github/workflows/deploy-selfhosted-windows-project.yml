@@ -74,7 +74,7 @@ jobs:
         run: | 
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
-            param($publishTemp)
+            param($publishTemp, $dll)
             Write-Host "Starting deploy in ${publishTemp}" 
             if ((Test-Path $publishTemp)) { 
             cd $publishTemp
@@ -82,7 +82,7 @@ jobs:
             Write-Host $path
             Start-Process "dotnet" -ArgumentList "`"path`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
            }
-          } -ArgumentList  ${env:PUBLISH_TEMP}
+          } -ArgumentList  ${env:PUBLISH_TEMP}, ${env:dll}
           Remove-PSSession $session
 
       # - name: Deploy (mirror published files)
