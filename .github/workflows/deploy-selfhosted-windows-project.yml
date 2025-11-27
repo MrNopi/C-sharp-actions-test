@@ -92,9 +92,9 @@ jobs:
           if ((Test-Path $publishTemp)) { 
           cd $publishTemp
            Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
-          | Out-Null }
+           }
           } -ArgumentList  ${env:PUBLISH_TEMP}
-          Copy-Item -Path "$env:PUBLISH_TEMP" -Destination "$env:PUBLISH_TEMP" -ToSession $session
+          # Copy-Item -Path "$env:PUBLISH_TEMP" -Destination "$env:PUBLISH_TEMP" -ToSession $session
           Remove-PSSession $session
 
       # - name: Deploy (mirror published files)
