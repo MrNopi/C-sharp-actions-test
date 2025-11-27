@@ -69,7 +69,7 @@ jobs:
       - name: Deploy files to server
         shell: powershell
         run: | 
-          $session = New-PSSession -ComputerName $env:RemoteServer
+          $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
             param($publishTemp)
             Write-Host "Starting deploy $ScriptPath ..."
