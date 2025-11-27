@@ -83,7 +83,7 @@ jobs:
             Write-Host $path
             Start-Process "dotnet" -ArgumentList "`"path`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
            }
-          } -ArgumentList  ${env:PUBLISH_TEMP}, ${Env:dll}
+          } -ArgumentList  (${env:PUBLISH_TEMP}, ${Env:dll})
           Remove-PSSession $session
 
       # - name: Deploy (mirror published files)
