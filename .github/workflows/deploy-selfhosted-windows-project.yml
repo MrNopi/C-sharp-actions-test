@@ -78,7 +78,7 @@ jobs:
             Write-Host "Starting deploy in ${publishTemp}" 
             if ((Test-Path $publishTemp)) { 
             cd $publishTemp
-             Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
+             Start-Process "dotnet" -ArgumentList "`"$publishTemp\$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
            }
           } -ArgumentList  ${env:PUBLISH_TEMP}
           Remove-PSSession $session
