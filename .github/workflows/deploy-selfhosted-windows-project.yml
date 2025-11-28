@@ -66,7 +66,25 @@ jobs:
           Remove-PSSession $session
 
 
-      - name: Deploy files to server
+      # - name: Deploy files to server
+      #   shell: powershell
+      #   env:
+      #      DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
+      #      PUBLISH_TEMP: ${{ env.PUBLISH_TEMP }}
+      #   run: | 
+      #     $session = New-PSSession -ComputerName $Env:RemoteServer
+      #     Write-Host $dll
+      #     Invoke-Command -Session $session -ScriptBlock {
+      #       param($publishTemp, $dll)
+      #       Write-Host "Starting deploy in ${publishTemp}" 
+      #       Write-Host "dll: ${dll}"
+      #       $path = "$publishTemp\$dll"
+      #       Write-Host $path
+      #       Start-Process "dotnet" -ArgumentList $path, "--urls", http://0.0.0.0:8080 -WindowStyle Hidden
+      #     } -ArgumentList  (${env:PUBLISH_TEMP}, ${Env:dll})
+      #     Remove-PSSession $session
+
+       - name: Deploy files to server
         shell: powershell
         env:
            DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
@@ -80,7 +98,7 @@ jobs:
             Write-Host "dll: ${dll}"
             $path = "$publishTemp\$dll"
             Write-Host $path
-            Start-Process "dotnet" -ArgumentList $path, "--urls", http://0.0.0.0:8080 -WindowStyle Hidden
+            dotnet $path --urls http://0.0.0.0:8080
           } -ArgumentList  (${env:PUBLISH_TEMP}, ${Env:dll})
           Remove-PSSession $session
 
