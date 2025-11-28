@@ -107,8 +107,7 @@ jobs:
         run: | 
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
-          $resp = & C:\apps\deploy.ps1
-          Write-Host "Response: ${resp}"
+          & C:\apps\deploy.ps1
           }
           Remove-PSSession $session
 
