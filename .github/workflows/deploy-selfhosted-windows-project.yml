@@ -110,7 +110,7 @@ jobs:
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Write-Host $dll
           Invoke-Command -Session $session -ScriptBlock {
-          params(dir)
+          param($dir)
           $resp = & $dir/../deploy.ps1
           Write-Host "Response: ${resp}"
           } -ArgumentList ${env:DEPLOY_DIR}
