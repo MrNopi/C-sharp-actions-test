@@ -104,16 +104,12 @@ jobs:
 
       - name: Deploy files to server
         shell: powershell
-        env:
-           DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
         run: | 
           $session = New-PSSession -ComputerName $Env:RemoteServer
-          Write-Host $dll
           Invoke-Command -Session $session -ScriptBlock {
-          param($dir)
-          $resp = & $dir/../deploy.ps1
+          $resp = & C:\\apps\deploy.ps1
           Write-Host "Response: ${resp}"
-          } -ArgumentList ${env:DEPLOY_DIR}
+          }
           Remove-PSSession $session
 
       # - name: Deploy (mirror published files)
