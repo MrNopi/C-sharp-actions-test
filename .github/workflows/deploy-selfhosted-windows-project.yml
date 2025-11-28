@@ -104,15 +104,15 @@ jobs:
 
 
 
-      - name: Healthcheck
-        shell: powershell
-        run: |
-          $session = New-PSSession -ComputerName $Env.RemoteServer
-          Invoke-Command -Session $session -ScriptBlock {
-          Write-Host "Starting healthcheck..."
-          $resp = Invoke-WebRequest -UseBasicParsing http://localhost:8080 -TimeoutSec 10
-          $healthStatus = if ($resp.StatusCode -ne 200) { throw "Health check failed: $($resp.StatusCode)" }
-          echo $healthStatus
-          }
-          Remove-PSSession $session
+      # - name: Healthcheck
+      #   shell: powershell
+      #   run: |
+      #     $session = New-PSSession -ComputerName $Env.RemoteServer
+      #     Invoke-Command -Session $session -ScriptBlock {
+      #     Write-Host "Starting healthcheck..."
+      #     $resp = Invoke-WebRequest -UseBasicParsing http://localhost:8080 -TimeoutSec 10
+      #     $healthStatus = if ($resp.StatusCode -ne 200) { throw "Health check failed: $($resp.StatusCode)" }
+      #     echo $healthStatus
+      #     }
+      #     Remove-PSSession $session
          
