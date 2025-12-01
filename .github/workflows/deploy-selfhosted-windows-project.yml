@@ -102,6 +102,15 @@ jobs:
       #     } -ArgumentList  (${env:PUBLISH_TEMP}, ${Env:dll})
       #     # Remove-PSSession $session
 
+      - name: Kill previous application
+        shell: powershell
+        run: |
+          $session = New-PSSession -ComputerName $Env:RemoteServer
+          Invoke-Command -Session $session -ScriptBlock {
+          Get-Process "dotnet" -ErrorAction SilentlyContinue | Stop-Process
+          }
+          Remove-PSSession $session
+
       - name: Deploy files to server
         shell: powershell
         run: | 
