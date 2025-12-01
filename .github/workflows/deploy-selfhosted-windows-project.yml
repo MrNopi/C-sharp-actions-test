@@ -62,7 +62,7 @@ jobs:
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           param($projectDir)
-          Remove-Item $env.projectDir\* -Force
+          Remove-Item C:\apps\* -Force
           Write-Host "Starting resource copying $ScriptPath ..."
           } -ArgumentList  ${env:PROJECT_DIR}
           Copy-Item -Path $env:PROJECT_DIR/* -Destination $env:PROJECT_DIR -ToSession $session -Recurse -Force
