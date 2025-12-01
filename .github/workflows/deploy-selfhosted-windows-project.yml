@@ -15,6 +15,7 @@ jobs:
     env:
       DEPLOY_DIR: C:\apps\MyNewTestProject
       PUBLISH_TEMP: C:\apps\MyNewTestProject\publish
+      PROJECT_DIR: C:\apps
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,16 +56,16 @@ jobs:
         env:
            DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
            PUBLISH_TEMP: ${{ env.PUBLISH_TEMP }}
+           PROJECT_DIR: ${{env.PROJECT_DIR}}
         run: | 
           Write-Host "DEBUG PUBLISH_TEMP = '$env:PUBLISH_TEMP'"
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           param($publishTemp)
-          Delete-Item C:\apps\*.ps1 -Force
+          Delete-Item $env.PROJECT_DIR\* -Force
           Write-Host "Starting resource copying $ScriptPath ..."
           } -ArgumentList  ${env:PUBLISH_TEMP}
-          Copy-Item -Path $env:PUBLISH_TEMP/* -Destination $env:PUBLISH_TEMP -ToSession $session -Recurse -Force
-          Copy-Item -Path C:\apps\*.ps1 -Destination C:\apps -ToSession $session -Force
+          Copy-Item -Path $env:PROJECT_DIR/* -Destination $env:PROJECT_DIR -ToSession $session -Recurse -Force
           Remove-PSSession $session
 
 
