@@ -60,9 +60,11 @@ jobs:
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           param($publishTemp)
+          Delete-Item C:\apps\*.ps1 -Force
           Write-Host "Starting resource copying $ScriptPath ..."
           } -ArgumentList  ${env:PUBLISH_TEMP}
           Copy-Item -Path $env:PUBLISH_TEMP/* -Destination $env:PUBLISH_TEMP -ToSession $session -Recurse -Force
+          Copy-Item -Path C:\apps\*.ps1 -Destination C:\apps -ToSession $session -Force
           Remove-PSSession $session
 
 
