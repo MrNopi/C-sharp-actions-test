@@ -119,7 +119,7 @@ jobs:
         run: | 
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
-          & C:\apps\deploy.ps1
+          RUNNER_TRACKING_ID="" && & C:\apps\deploy.ps1
           }
           Remove-PSSession $session
 
