@@ -117,9 +117,10 @@ jobs:
       - name: Deploy files to server
         shell: powershell
         run: | 
+          $env:RUNNER_TRACKING_ID=""
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
-          RUNNER_TRACKING_ID="" && C:\apps\deploy.ps1
+          & C:\apps\deploy.ps1
           }
           Remove-PSSession $session
 
