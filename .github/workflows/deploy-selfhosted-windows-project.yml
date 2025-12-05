@@ -48,7 +48,13 @@ jobs:
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           param($projectDir)
-          Remove-Item C:\apps\MyApp\* -Force -Recurse
+
+          if (Test-Path C:\apps\MyApp) {
+            Remove-Item C:\apps\MyApp\* -Force -Recurse
+          } else {
+            New-Item -ItemType "Directory" C:\apps\MyApp -Force
+          }
+          
           Write-Host "Starting resource copying $ScriptPath ..."
           } -ArgumentList  ${env:PROJECT_DIR}
           Copy-Item -Path $env:PROJECT_DIR/* -Destination $env:DEPLOY_DIR -ToSession $session -Recurse -Force
