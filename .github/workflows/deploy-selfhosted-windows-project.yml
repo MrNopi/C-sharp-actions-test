@@ -66,7 +66,7 @@ jobs:
           
           Write-Host "Starting resource copying $ScriptPath ..."
           } -ArgumentList  ${env:PROJECT_DIR}
-          Copy-Item -Path $env:PROJECT_DIR/* -Destination $env:DEPLOY_DIR -ToSession $session -Recurse -Force
+          Copy-Item -Path $env:DEPLOY_DIR/* -Destination $env:DEPLOY_DIR -ToSession $session -Recurse -Force
           Remove-PSSession $session
 
       - name: Deploy files to server
