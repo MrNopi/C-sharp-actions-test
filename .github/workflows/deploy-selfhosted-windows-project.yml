@@ -42,7 +42,7 @@ jobs:
         run: |
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
-          Get-Service "MyWebAppService" -ErrorAction SilentlyContinue | Stop-Service
+          Get-Service "WebApp" -ErrorAction SilentlyContinue | Stop-Service
           }
           Remove-PSSession $session
 
