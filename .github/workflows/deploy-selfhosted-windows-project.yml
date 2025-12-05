@@ -37,6 +37,15 @@ jobs:
         run: |
           dotnet publish MyNewTestProject.csproj -c Release -o $env:PUBLISH_TEMP
 
+      - name: Stop previous application
+        shell: powershell
+        run: |
+          $session = New-PSSession -ComputerName $Env:RemoteServer
+          Invoke-Command -Session $session -ScriptBlock {
+          Get-Service "MyWebAppService" -ErrorAction SilentlyContinue | Stop-Service
+          }
+          Remove-PSSession $session
+
       - name: Transfer files to server
         shell: powershell
         env:
@@ -58,15 +67,6 @@ jobs:
           Write-Host "Starting resource copying $ScriptPath ..."
           } -ArgumentList  ${env:PROJECT_DIR}
           Copy-Item -Path $env:PROJECT_DIR/* -Destination $env:DEPLOY_DIR -ToSession $session -Recurse -Force
-          Remove-PSSession $session
-
-      - name: Kill previous application
-        shell: powershell
-        run: |
-          $session = New-PSSession -ComputerName $Env:RemoteServer
-          Invoke-Command -Session $session -ScriptBlock {
-          Get-Service "MyWebAppService" -ErrorAction SilentlyContinue | Stop-Service
-          }
           Remove-PSSession $session
 
       - name: Deploy files to server
