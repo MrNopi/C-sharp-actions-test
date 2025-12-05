@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-String[] arr = new String[];
+String[] arr = new String[10];
 
 arr[0] = "Hello";
 arr[1] = "World";
