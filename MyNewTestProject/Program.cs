@@ -8,7 +8,7 @@ arr[1] = "World";
 arr[2] = "!!";
 
 app.MapGet("/", () => "Hello World!!");
-app.MapGet("/hello" => "Hello World!");
-app.MapGet("/hi" => arr);
+app.MapGet("/hello", () => "Hello World!");
+app.MapGet("/hi", () => arr);
 
 app.Run();
