@@ -37,20 +37,6 @@ jobs:
         run: |
           dotnet publish MyNewTestProject.csproj -c Release -o $env:PUBLISH_TEMP
 
-      # - name: Stop running Kestrel/dotnet for this app
-      #   run: |
-      #     $matches = Get-CimInstance Win32_Process |
-      #       Where-Object { $_.CommandLine -match 'MyNewTestProject\.dll' -or $_.CommandLine -match 'MyNewTestProject\\MyNewTestProject' }
-      #     if ($matches) {
-      #       $matches | ForEach-Object {
-      #         Write-Host "Stopping PID $($_.ProcessId): $($_.CommandLine)"
-      #         Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
-      #       }
-      #     } else {
-      #       Write-Host "No existing Kestrel/dotnet process found for MyNewTestProject."
-      #     }
-
-
       - name: Transfer files to server
         shell: powershell
         env:
@@ -68,91 +54,21 @@ jobs:
           Copy-Item -Path $env:PROJECT_DIR/* -Destination $env:PROJECT_DIR -ToSession $session -Recurse -Force
           Remove-PSSession $session
 
-
-      # - name: Deploy files to server
-      #   shell: powershell
-      #   env:
-      #      DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
-      #      PUBLISH_TEMP: ${{ env.PUBLISH_TEMP }}
-      #   run: | 
-      #     $session = New-PSSession -ComputerName $Env:RemoteServer
-      #     Write-Host $dll
-      #     Invoke-Command -Session $session -ScriptBlock {
-      #       param($publishTemp, $dll)
-      #       Write-Host "Starting deploy in ${publishTemp}" 
-      #       Write-Host "dll: ${dll}"
-      #       $path = "$publishTemp\$dll"
-      #       Write-Host $path
-      #       Start-Process "dotnet" -ArgumentList $path, "--urls", http://0.0.0.0:8080 -WindowStyle Hidden
-      #     } -ArgumentList  (${env:PUBLISH_TEMP}, ${Env:dll})
-      #     Remove-PSSession $session
-
-      # - name: Deploy files to server
-      #   shell: powershell
-      #   env:
-      #      DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
-      #      PUBLISH_TEMP: ${{ env.PUBLISH_TEMP }}
-      #   run: | 
-      #     $session = New-PSSession -ComputerName $Env:RemoteServer
-      #     Write-Host $dll
-      #     Invoke-Command -Session $session -ScriptBlock {
-      #       param($publishTemp, $dll)
-      #       Write-Host "Starting deploy in ${publishTemp}" 
-      #       Write-Host "dll: ${dll}"
-      #       $path = "$publishTemp\$dll"
-      #       Write-Host $path
-      #       dotnet $path --urls http://0.0.0.0:8080
-      #     } -ArgumentList  (${env:PUBLISH_TEMP}, ${Env:dll})
-      #     # Remove-PSSession $session
-
       - name: Kill previous application
         shell: powershell
         run: |
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
-          Get-Process "dotnet" -ErrorAction SilentlyContinue | Stop-Process
+          Get-Service "MyWebAppService" -ErrorAction SilentlyContinue | Stop-Process
           }
           Remove-PSSession $session
 
       - name: Deploy files to server
         shell: powershell
-        run: | 
-          $env:RUNNER_TRACKING_ID=""
+        run: |
           $session = New-PSSession -ComputerName $Env:RemoteServer
           Invoke-Command -Session $session -ScriptBlock {
           & C:\apps\deploy.ps1
           }
           Remove-PSSession $session
-
-      # - name: Deploy (mirror published files)
-      #   run: |
-      #     robocopy "$env:PUBLISH_TEMP" "$env:DEPLOY_DIR" /MIR
-      #     $code = $LASTEXITCODE
-      #     if ($code -ge 8) { throw "robocopy failed with exit code $code" }
-      #     # Normalize acceptable robocopy codes (0-7) so the step doesn't fail
-      #     $global:LASTEXITCODE = 0
-
-      # - name: Run app with logs (Kestrel)
-      #   shell: powershell
-      #   run: |
-      #     $dll = Join-Path $env:DEPLOY_DIR 'MyNewTestProject.dll'
-      #     if (-not (Test-Path $dll)) { throw "App DLL not found at $dll" }
-      #     Write-Host "Starting app in background..."
-      #     Start-Process "dotnet" -ArgumentList "`"$dll`" --urls http://0.0.0.0:8080" -WindowStyle Hidden
-      #     Start-Sleep -Seconds 5
-      #     Write-Host "✅ App started in background on port 8080."
-
-
-
-      # - name: Healthcheck
-      #   shell: powershell
-      #   run: |
-      #     $session = New-PSSession -ComputerName $Env.RemoteServer
-      #     Invoke-Command -Session $session -ScriptBlock {
-      #     Write-Host "Starting healthcheck..."
-      #     $resp = Invoke-WebRequest -UseBasicParsing http://localhost:8080 -TimeoutSec 10
-      #     $healthStatus = if ($resp.StatusCode -ne 200) { throw "Health check failed: $($resp.StatusCode)" }
-      #     echo $healthStatus
-      #     }
-      #     Remove-PSSession $session
          
